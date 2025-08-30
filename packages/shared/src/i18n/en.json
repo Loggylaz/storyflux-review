@@ -1,0 +1,11 @@
+{
+  "app.title": "StoryFlux",
+  "lobby.createRoom": "Create room",
+  "lobby.joinRoom": "Join room",
+  "lobby.displayName": "Your name",
+  "table.waiting": "Waiting for players: {names}",
+  "table.actionPrompt": "What do you do?",
+  "tts.hello": "Hello, I am your Game Master.",
+  "roll.demo": "Dice demo (server)",
+  "journal.title": "Table journal"
+}
