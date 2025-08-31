@@ -8,7 +8,9 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setupWs } from './ws.js';
 // ...
-import { ttsRouter } from './routers/tts.js';
+import { ttsRouter } from './routes/tts.js';
+import { usageRouter } from './routes/usage.js';
+import { mjRouter } from './routes/mj.js';
 
 
 
@@ -19,6 +21,8 @@ const app = express();
 app.use(cors({ origin: WEB_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use('/tts', ttsRouter);
+app.use('/usage', usageRouter);
+app.use('/mj', mjRouter);
 
 const trpcMiddleware = createExpressMiddleware({
   router: appRouter,

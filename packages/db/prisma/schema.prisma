@@ -17,7 +17,7 @@ model User {
   members     RoomMember[]
   rolls       Roll[]
   events      Event[]       @relation("EventByUser")
-  characters  Character[]   // <-- ajout : côté inverse de Character.user
+  characters  Character[]
 }
 
 model Session {
@@ -35,6 +35,7 @@ model Room {
   isPrivate       Boolean       @default(true)
   createdByUserId String
   createdAt       DateTime      @default(now())
+
   members         RoomMember[]
   characters      Character[]
   world           World?
@@ -43,6 +44,7 @@ model Room {
   events          Event[]
   rolls           Roll[]
   journal         JournalEntry[]
+  usage           Usage?
 }
 
 model RoomMember {
@@ -64,7 +66,7 @@ model Character {
   class      String
   level      Int      @default(1)
   ca         Int      @default(10) // classe d'armure
-  js         Int      @default(10) // jet de sauvegarde de base (placeholder)
+  js         Int      @default(10) // jet de sauvegarde placeholder
   hp         Int      @default(10)
   statsJSON  Json     // {str,dex,con,int,wis,cha}
   statesJSON Json     // {poisoned,prone,...}
@@ -130,4 +132,18 @@ model JournalEntry {
   content   String
   createdAt DateTime @default(now())
   room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Usage {
+  id               String   @id @default(cuid())
+  roomId           String   @unique
+  ttsMsOut         Int      @default(0)
+  realtimeMsOut    Int      @default(0)
+  textTokensIn     Int      @default(0)
+  textTokensOut    Int      @default(0)
+  audioTokensIn    Int      @default(0)
+  audioTokensOut   Int      @default(0)
+  updatedAt        DateTime @updatedAt
+
+  room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
