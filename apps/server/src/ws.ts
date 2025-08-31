@@ -1,8 +1,8 @@
 import { Server } from 'socket.io';
+import { prisma } from '@storyflux/db/src/client.js';
 
-type RoomState = {
-  players: Map<string, { name: string; ready: boolean; lastAction?: string }>;
-};
+type PlayerState = { name: string; ready: boolean; lastAction?: string };
+type RoomState = { players: Map<string, PlayerState> };
 
 const rooms = new Map<string, RoomState>();
 
@@ -19,7 +19,7 @@ export function setupWs(io: Server) {
       broadcastWaiting(io, roomId, state);
     });
 
-    socket.on('playerAction', ({ roomId, userId, action }: { roomId: string; userId: string; action: string }) => {
+    socket.on('playerAction', async ({ roomId, userId, action }: { roomId: string; userId: string; action: string }) => {
       const state = rooms.get(roomId);
       if (!state) return;
       const p = state.players.get(userId);
@@ -28,11 +28,24 @@ export function setupWs(io: Server) {
       p.lastAction = action;
 
       if ([...state.players.values()].every((v) => v.ready)) {
-        // In a real app, request UI order; here we just use joined order:
-        const order = [...state.players.values()].map((p) => p.name).join(' → ');
-        const summary = `Ordre appliqué: ${order}. Actions: ${[...state.players.values()].map(p => `${p.name}: ${p.lastAction}`).join(' | ')}`;
+        // Ici, ordre simple (ordre d'arrivée). Semaine 2: UI drag&drop.
+        const orderNames = [...state.players.values()].map((p) => p.name).join(' → ');
+        const actionsStr = [...state.players.values()].map(p => `${p.name}: ${p.lastAction}`).join(' | ');
+        const summary = `Ordre appliqué: ${orderNames}. Actions: ${actionsStr}`;
+
         io.to(roomId).emit('server', { type: 'roundResolved', summary });
-        // reset ready for next round
+
+        // Journal persistant (non bloquant)
+        try {
+          await prisma.journalEntry.create({
+            data: { roomId, kind: 'system', content: summary }
+          });
+        } catch (e) {
+          // on évite de faire planter le WS pour un souci DB
+          console.error('journal persist failed', e);
+        }
+
+        // reset ready pour le round suivant
         for (const v of state.players.values()) { v.ready = false; v.lastAction = undefined; }
         broadcastWaiting(io, roomId, state);
       } else {

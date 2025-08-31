@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   displayName String
-  lang        String   @default("fr")
-  createdAt   DateTime @default(now())
+  lang        String        @default("fr")
+  createdAt   DateTime      @default(now())
+
   sessions    Session[]
   members     RoomMember[]
   rolls       Roll[]
-  events      Event[]  @relation("EventByUser")
+  events      Event[]       @relation("EventByUser")
+  characters  Character[]   // <-- ajout : côté inverse de Character.user
 }
 
 model Session {
@@ -27,20 +29,20 @@ model Session {
 }
 
 model Room {
-  id             String       @id @default(cuid())
-  name           String
-  seedWorld      String
-  isPrivate      Boolean      @default(true)
+  id              String        @id @default(cuid())
+  name            String
+  seedWorld       String
+  isPrivate       Boolean       @default(true)
   createdByUserId String
-  createdAt      DateTime     @default(now())
-  members        RoomMember[]
-  characters     Character[]
-  world          World?
-  locations      Location[]
-  npcs           NPC[]
-  events         Event[]
-  rolls          Roll[]
-  journal        JournalEntry[]
+  createdAt       DateTime      @default(now())
+  members         RoomMember[]
+  characters      Character[]
+  world           World?
+  locations       Location[]
+  npcs            NPC[]
+  events          Event[]
+  rolls           Roll[]
+  journal         JournalEntry[]
 }
 
 model RoomMember {
@@ -54,57 +56,57 @@ model RoomMember {
 }
 
 model Character {
-  id        String   @id @default(cuid())
-  roomId    String
-  userId    String
-  name      String
-  race      String
-  class     String
-  level     Int      @default(1)
-  ca        Int      @default(10) // classe d'armure
-  js        Int      @default(10) // jet de sauvegarde de base (placeholder)
-  hp        Int      @default(10)
-  statsJSON Json     // {str,dex,con,int,wis,cha}
-  statesJSON Json    // {poisoned,prone,...}
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  roomId     String
+  userId     String
+  name       String
+  race       String
+  class      String
+  level      Int      @default(1)
+  ca         Int      @default(10) // classe d'armure
+  js         Int      @default(10) // jet de sauvegarde de base (placeholder)
+  hp         Int      @default(10)
+  statsJSON  Json     // {str,dex,con,int,wis,cha}
+  statesJSON Json     // {poisoned,prone,...}
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model World {
-  id        String   @id @default(cuid())
-  roomId    String   @unique
-  seed      String
-  metaJSON  Json
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  roomId   String  @unique
+  seed     String
+  metaJSON Json
+  room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 model Location {
-  id        String   @id @default(cuid())
-  roomId    String
-  name      String
-  seed      String
-  metaJSON  Json
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  roomId   String
+  name     String
+  seed     String
+  metaJSON Json
+  room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 model NPC {
-  id        String   @id @default(cuid())
-  roomId    String
-  name      String
-  seed      String
-  metaJSON  Json
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  roomId   String
+  name     String
+  seed     String
+  metaJSON Json
+  room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 model Event {
-  id             String   @id @default(cuid())
-  roomId         String
-  type           String   // 'narration' | 'system' | 'combat' | ...
-  payloadJSON    Json
+  id              String   @id @default(cuid())
+  roomId          String
+  type            String   // 'narration' | 'system' | 'combat' | ...
+  payloadJSON     Json
   createdByUserId String?
-  createdAt      DateTime @default(now())
-  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  createdByUser  User?    @relation("EventByUser", fields: [createdByUserId], references: [id])
+  createdAt       DateTime @default(now())
+  room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdByUser   User?    @relation("EventByUser", fields: [createdByUserId], references: [id])
 }
 
 model Roll {
@@ -117,8 +119,8 @@ model Roll {
   modifier  Int       @default(0)
   signature String
   createdAt DateTime  @default(now())
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user      User?    @relation(fields: [userId], references: [id])
+  room      Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id])
 }
 
 model JournalEntry {

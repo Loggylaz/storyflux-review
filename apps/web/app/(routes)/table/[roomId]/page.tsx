@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useRoom } from '@/src/store/useRoom';
-import TTS from '@/src/components/TTS';
+import SmartTTS from '@/src/components/SmartTTS';
 import ASR from '@/src/components/ASR';
 
 export default function TablePage() {
@@ -25,7 +25,7 @@ export default function TablePage() {
     <div className="card">
       <h2>Table {roomId}</h2>
       <p><strong>{waiting}</strong></p>
-      <TTS text={waiting} />
+      <SmartTTS text={waiting} role="narrator" style="narration-professional" />
       <div className="row">
         <input value={action} onChange={e=>setAction(e.target.value)} placeholder="Décrivez votre action..." />
         <button onClick={() => { sendAction(action || 'passe son tour'); setAction(''); }}>Envoyer</button>
